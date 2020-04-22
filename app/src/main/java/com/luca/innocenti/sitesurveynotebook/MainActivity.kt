@@ -1,13 +1,15 @@
 package com.luca.innocenti.sitesurveynotebook
 
+import android.graphics.Color
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.File
@@ -26,31 +28,47 @@ class MainActivity : AppCompatActivity(){
 
         fab.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
-                sposta()
+                if (view != null) {
+                    sposta(view)
+                }
             }
         })
     }
 
-    private fun sposta(){
-        // crea directory
-        Log.d("Directory","Sposta")
-        val sdf = SimpleDateFormat("dd_MM_yyyy_hh:mm:ss")
-        val currentDate = sdf.format(Date())
-        val folder_main = currentDate
+    private fun sposta(vista:View){
+        var stato: variabili = variabili.create()
 
-        val f =
-            File(this.getExternalFilesDir("SiteSurvey"), folder_main)
-        if (!f.exists()) {
-            f.mkdirs()
+        if (stato.get_audio() && stato.get_photo())
+        {
+            // crea sposta i dati dal tmeporaneo alla directory
+            Log.d("Directory","Sposta")
+            val sdf = SimpleDateFormat("dd_MM_yyyy_hh:mm:ss")
+            val currentDate = sdf.format(Date())
+            val folder_main = currentDate
+
+            val f =
+                File(this.getExternalFilesDir("SiteSurvey"), folder_main)
+            if (!f.exists()) {
+                f.mkdirs()
+            }
+            var mp3_tmp:File = File(this.getExternalFilesDir("SiteSurvey"), "tmp_recording.mp3")
+            var jpg_tmp:File= File(this.getExternalFilesDir("SiteSurvey"), "tmp_photo.jpg")
+
+            var mp3_def: File = File(this.getExternalFilesDir("SiteSurvey/"+currentDate), currentDate+".mp3")
+            var jpg_def: File = File(this.getExternalFilesDir("SiteSurvey/"+currentDate), currentDate+".jpg")
+
+            mp3_tmp.copyTo(mp3_def,false)
+            jpg_tmp.copyTo(jpg_def,false)
+            stato.set_audio(false)
+            stato.set_foto(false)
         }
-        var mp3_tmp:File = File(this.getExternalFilesDir("SiteSurvey"), "tmp_recording.mp3")
-        var jpg_tmp:File= File(this.getExternalFilesDir("SiteSurvey"), "tmp_photo.jpg")
+        else
+        {
+            Snackbar.make(vista, "First take a photo and record the audio note", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+        }
 
-        var mp3_def: File = File(this.getExternalFilesDir("SiteSurvey/"+currentDate), currentDate+".mp3")
-        var jpg_def: File = File(this.getExternalFilesDir("SiteSurvey/"+currentDate), currentDate+".jpg")
 
-        mp3_tmp.copyTo(mp3_def,false)
-        jpg_tmp.copyTo(jpg_def,false)
 
     }
 

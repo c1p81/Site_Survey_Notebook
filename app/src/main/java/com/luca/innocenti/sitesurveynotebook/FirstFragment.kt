@@ -32,6 +32,7 @@ import java.io.IOException
  */
 class FirstFragment : Fragment() {
 
+    private lateinit var stato: variabili
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var mContext: Context
     private lateinit var mediaRecorder: MediaRecorder
@@ -80,6 +81,9 @@ class FirstFragment : Fragment() {
 
         cameraKitView = view.findViewById(R.id.camera);
 
+        stato= variabili.create()
+
+
         output = File(mContext.getExternalFilesDir("SiteSurvey"), "tmp_recording.mp3").toString()
 
         Log.d("output",output)
@@ -92,6 +96,7 @@ class FirstFragment : Fragment() {
             cameraKitView?.captureImage(ImageCallback { cameraKitView, capturedImage ->
                 val savedPhoto =File(mContext.getExternalFilesDir("SiteSurvey"), "tmp_photo.jpg")
                 Log.d("Photo",savedPhoto.toString())
+                stato.set_foto(true)
                 try {
                     val outputStream = FileOutputStream(savedPhoto.path)
                     outputStream.write(capturedImage)
@@ -132,8 +137,9 @@ class FirstFragment : Fragment() {
                     try{
                         mediaRecorder?.stop()
                         mediaRecorder?.release()
+                        stato.set_audio(true)
                         Toast.makeText(mContext, "Stop Recording", Toast.LENGTH_SHORT).show()
-                        mediaPlayer.start()
+                        //mediaPlayer.start()
                     }catch (e: IllegalStateException) {
                         e.printStackTrace()
                     } catch (e: IOException) {
