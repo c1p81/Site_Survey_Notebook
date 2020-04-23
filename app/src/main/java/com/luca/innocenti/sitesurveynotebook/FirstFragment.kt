@@ -89,6 +89,7 @@ class FirstFragment : Fragment() {
 
         Log.d("output",output)
         mediaRecorder = MediaRecorder()
+
         mediaPlayer = MediaPlayer.create(mContext,R.raw.ding)
 
         val shutter = view.findViewById<ImageButton>(R.id.shutter)
@@ -133,12 +134,14 @@ class FirstFragment : Fragment() {
                 photo = false
                 icona_camera?.visibility = View.INVISIBLE
                 icona_audio?.visibility= View.INVISIBLE
+                mp3_tmp.delete()
+                jpg_tmp.delete()
 
             }
             else
             {
-                //Snackbar.make(mContext, "First take a photo and record the audio note", Snackbar.LENGTH_LONG)
-                //    .setAction("Action", null).show()
+                Snackbar.make(view, "First take a photo and record the audio note", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
             }
 
         }
@@ -161,6 +164,7 @@ class FirstFragment : Fragment() {
                     icona_camera?.visibility = View.VISIBLE
                 } catch (e: IOException) {
                     e.printStackTrace()
+                    Log.d("Camera", "errore" + e.toString())
                 }
             })
         }
@@ -207,7 +211,7 @@ class FirstFragment : Fragment() {
                 MotionEvent.ACTION_UP -> {
                     try{
                         mediaRecorder?.stop()
-                        mediaRecorder?.release()
+                        //mediaRecorder?.release()
                         Toast.makeText(mContext, "Stop Recording", Toast.LENGTH_SHORT).show()
                         mediaPlayer.start()
                     }catch (e: IllegalStateException) {
