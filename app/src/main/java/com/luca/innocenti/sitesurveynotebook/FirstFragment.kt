@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -22,16 +23,23 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.camerakit.CameraKitView
 import com.camerakit.CameraKitView.ImageCallback
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.NonCancellable.start
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.audio
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.photo
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
 class FirstFragment : Fragment() {
 
+    private var icona_camera: ImageView? = null
+    private var icona_audio: ImageView? = null
     private lateinit var stato: variabili
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var mContext: Context
@@ -71,42 +79,101 @@ class FirstFragment : Fragment() {
         cameraKitView?.onStop()
     }
 
-    private fun scatta()
-    {
-
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         cameraKitView = view.findViewById(R.id.camera);
-
-        stato= variabili.create()
-
-
-        output = File(mContext.getExternalFilesDir("SiteSurvey"), "tmp_recording.mp3").toString()
+        stato = variabili()
+        output = File(mContext.getExternalFilesDir("SiteSurvey/tmp"), "tmp_recording.mp3").toString()
 
         Log.d("output",output)
         mediaRecorder = MediaRecorder()
         mediaPlayer = MediaPlayer.create(mContext,R.raw.ding)
 
         val shutter = view.findViewById<ImageButton>(R.id.shutter)
+        val aggiungi = view.findViewById<ImageButton>(R.id.imageButton3)
+        icona_camera = view.findViewById<ImageView>(R.id.camera_icon)
+        icona_audio = view.findViewById<ImageView>(R.id.audio_icon)
+        icona_camera?.visibility = View.INVISIBLE
+        icona_audio?.visibility = View.INVISIBLE
+
+
+        aggiungi.setOnClickListener{
+            Log.d("shutter","shu")
+            //Log.d("variabili_main", stato.audio.toString()+ " "+stato.photo.toString())
+            //if (true)
+            if (audio && photo)
+            {
+                // crea sposta i dati dal tmeporaneo alla directory
+                Log.d("Directory","Sposta")
+                val sdf = SimpleDateFormat("dd_MM_yyyy_hh:mm:ss")
+                val currentDate = sdf.format(Date())
+                val folder_main = currentDate
+
+                val f =
+                    File(mContext.getExternalFilesDir("SiteSurvey"), folder_main)
+                if (!f.exists()) {
+                    f.mkdirs()
+                }
+                var mp3_tmp:File = File(mContext.getExternalFilesDir("SiteSurvey/tmp"), "tmp_recording.mp3")
+                var jpg_tmp:File= File(mContext.getExternalFilesDir("SiteSurvey/tmp"), "tmp_photo.jpg")
+                Log.d("file", mp3_tmp.toString())
+                Log.d("file", jpg_tmp.toString())
+
+                var mp3_def: File = File(mContext.getExternalFilesDir("SiteSurvey/"+currentDate), currentDate+".mp3")
+                var jpg_def: File = File(mContext.getExternalFilesDir("SiteSurvey/"+currentDate), currentDate+".jpg")
+
+                Log.d("file", mp3_def.toString())
+                Log.d("file", jpg_def.toString())
+
+                mp3_tmp.copyTo(mp3_def,false)
+                jpg_tmp.copyTo(jpg_def,false)
+                audio = false
+                photo = false
+                icona_camera?.visibility = View.INVISIBLE
+                icona_audio?.visibility= View.INVISIBLE
+
+            }
+            else
+            {
+                //Snackbar.make(mContext, "First take a photo and record the audio note", Snackbar.LENGTH_LONG)
+                //    .setAction("Action", null).show()
+            }
+
+        }
+
+
+
+
         shutter.setOnClickListener{
             Log.d("shutter","shu")
+
             cameraKitView?.captureImage(ImageCallback { cameraKitView, capturedImage ->
-                val savedPhoto =File(mContext.getExternalFilesDir("SiteSurvey"), "tmp_photo.jpg")
+                val savedPhoto =File(mContext.getExternalFilesDir("SiteSurvey/tmp"), "tmp_photo.jpg")
                 Log.d("Photo",savedPhoto.toString())
-                stato.set_foto(true)
                 try {
                     val outputStream = FileOutputStream(savedPhoto.path)
                     outputStream.write(capturedImage)
                     outputStream.close()
+                    photo = true
+                    mediaPlayer.start()
+                    icona_camera?.visibility = View.VISIBLE
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
             })
         }
 
+        view.findViewById<ImageButton>(R.id.clear).setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                photo = false
+                audio = false
+                icona_camera?.visibility = View.INVISIBLE
+                icona_audio?.visibility= View.INVISIBLE
+                Log.d("Clear","clear global variables")
+            }
+        })
 
 
 
@@ -127,6 +194,10 @@ class FirstFragment : Fragment() {
                         mediaRecorder?.prepare()
                         mediaRecorder?.start()
                         mediaPlayer.start()
+                        audio = true
+                        icona_audio?.visibility = android.view.View.VISIBLE
+
+
                         Toast.makeText(mContext, "Recording started!", Toast.LENGTH_SHORT).show()
                         }
 
@@ -137,9 +208,8 @@ class FirstFragment : Fragment() {
                     try{
                         mediaRecorder?.stop()
                         mediaRecorder?.release()
-                        stato.set_audio(true)
                         Toast.makeText(mContext, "Stop Recording", Toast.LENGTH_SHORT).show()
-                        //mediaPlayer.start()
+                        mediaPlayer.start()
                     }catch (e: IllegalStateException) {
                         e.printStackTrace()
                     } catch (e: IOException) {
