@@ -8,10 +8,15 @@
         android:title="@string/note"
         app:showAsAction="never" />
     <item
-
     android:id="@+id/list"
     android:orderInCategory="101"
     android:title="@string/list"
     app:showAsAction="never" />
+    <item
+        android:id="@+id/help"
+        android:orderInCategory="102"
+        android:title="@string/help"
+        app:showAsAction="never" />
+
 
 </menu>

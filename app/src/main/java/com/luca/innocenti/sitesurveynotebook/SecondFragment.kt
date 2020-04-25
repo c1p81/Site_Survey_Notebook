@@ -1,31 +1,42 @@
 package com.luca.innocenti.sitesurveynotebook
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.ListView
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.luca.innocenti.sitesurveynotebook.R.id.listadir
-import kotlinx.android.synthetic.main.fragment_second.*
+import java.io.File
+import java.io.FileInputStream
+
+
+private lateinit var mContext: Context
+
 
 class Sito {
     var emp_id: Int? = 0
     var emp_name: String? = null
-    var emp_designation: String? = null
-    var emp_salary: String? = null
-    var emp_photo: Int? = null
+    var emp_photo: String? = null
 }
 
 class MyListAdapter (private var activity: Activity, private var items: ArrayList<Sito>) :  BaseAdapter(){
     private class ViewHolder(row: View?) {
-        var imgEmp: ImageView? = null
-        var lblSalary: TextView? = null
+        var img_p: ImageView? = null
+        var nome: TextView? = null
         init {
-            this.imgEmp = row?.findViewById<ImageView>(R.id.img_emp)
-            this.lblSalary = row?.findViewById<TextView>(R.id.data)
+            this.img_p = row?.findViewById<ImageView>(R.id.img)
+            this.nome = row?.findViewById<TextView>(R.id.data)
         }
     }
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -41,8 +52,30 @@ class MyListAdapter (private var activity: Activity, private var items: ArrayLis
             viewHolder = view.tag as ViewHolder
         }
         var emp = items[position]
-        viewHolder.lblSalary?.text = emp.emp_salary
-        viewHolder.imgEmp?.setImageResource(emp.emp_photo!!)
+        viewHolder.nome?.text = emp.emp_name
+        //viewHolder.img_p?.setImageResource(emp.emp_photo!!)
+
+        Log.d("imgFile", emp.emp_photo!!)
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            Log.d("Permesso","NON NON ")
+        }
+
+
+
+
+        val options: BitmapFactory.Options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        Log.d("emp2",emp.emp_photo)
+
+
+
+        val destination = File(emp.emp_photo)
+        val fileInputStream: FileInputStream
+        fileInputStream = FileInputStream(destination)
+        val ur = BitmapFactory.decodeStream(fileInputStream)
+        viewHolder.img_p?.setImageBitmap(ur)
+
 
         return view as View
     }
@@ -62,7 +95,6 @@ class SecondFragment : Fragment() {
 
 
     private var lista: ListView? = null
-    private lateinit var mContext: Context
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -80,27 +112,57 @@ class SecondFragment : Fragment() {
         var adapter : MyListAdapter? = null
 
         var result = ArrayList<Sito>()
-        result = generadati()
+        //result = generadati()
+
+        result = dirdata()
         adapter = MyListAdapter(requireActivity(), result)
         lista!!.adapter = adapter
 
+        lista!!.setOnItemClickListener { parent, view, position, id ->
+            //val element = adapter.getItemAtPosition(position) // The item that was clicked
+
+            val intent = Intent(activity, Main2Activity::class.java)
+            intent.putExtra("s", result.get(position).emp_name)
+
+            startActivity(intent)
+        }
+
+        /*
+        lista!!.setOnItemClickListener { adapterView, view, i, l ->
+            Log.d("Click","Selected Emp is = "+result.get(i).emp_name)
+            //Toast.makeText(this, "Selected Emp is = "+result.get(i).emp_name, Toast.LENGTH_SHORT).show()
+        }*/
+
     }
 
-    private fun generadati(): ArrayList<Sito> {
+
+    // scasioni i nomi delle directory e crea i dati per la listview
+    private fun dirdata(): ArrayList<Sito>
+    {
         var result = ArrayList<Sito>()
         var emp: Sito = Sito()
-        emp.emp_id = 1
-        emp.emp_name = "John Clington"
-        emp.emp_designation = "CEO"
-        emp.emp_salary = "USD 21000$"
-        //emp.emp_photo = R.drawable.p1
-        result.add(emp)
-        return  result
+
+        val path = File(mContext.getExternalFilesDir("SiteSurvey"),"").toString()
+        Log.d("Files", "Path: $path")
+        val directory = File(path)
+        val files = directory.listFiles()
+        Log.d("Files", "Size: " + files.size)
+        for (i in files.indices) {
+            Log.d("Files", "FileName:" + files[i].name)
+            if (files[i].name != "tmp") {
+                var emp: Sito = Sito()
+                emp.emp_name = files[i].name
+                emp.emp_photo = path + "/" + files[i].name + "/" + files[i].name + ".jpg"
+                result.add(emp)
+            }
+        }
+        return result
     }
+
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context);
         mContext=context;
-        //this.listener = context as? FragmentListener
     }
 }

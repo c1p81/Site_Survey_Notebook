@@ -1,13 +1,22 @@
 package com.luca.innocenti.sitesurveynotebook
 
+import android.Manifest
+import android.app.Activity
+import android.app.ProgressDialog.show
+import android.content.DialogInterface
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
@@ -15,6 +24,8 @@ import kotlinx.android.synthetic.main.content_main.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.audio
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.photo
 
 
 class MainActivity : AppCompatActivity(){
@@ -24,6 +35,8 @@ class MainActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        audio = false
+        photo = false
 
 
         fab.setOnClickListener(object : View.OnClickListener {
@@ -36,9 +49,11 @@ class MainActivity : AppCompatActivity(){
     }
 
     private fun sposta(vista:View){
-        var stato: variabili = variabili.create()
+        
 
-        if (stato.get_audio() && stato.get_photo())
+        //Log.d("variabili_main", stato.audio.toString()+ " "+stato.photo.toString())
+        //if (true)
+        if (audio && photo)
         {
             // crea sposta i dati dal tmeporaneo alla directory
             Log.d("Directory","Sposta")
@@ -51,16 +66,22 @@ class MainActivity : AppCompatActivity(){
             if (!f.exists()) {
                 f.mkdirs()
             }
-            var mp3_tmp:File = File(this.getExternalFilesDir("SiteSurvey"), "tmp_recording.mp3")
-            var jpg_tmp:File= File(this.getExternalFilesDir("SiteSurvey"), "tmp_photo.jpg")
+            var mp3_tmp:File = File(this.getExternalFilesDir("SiteSurvey/tmp"), "tmp_recording.mp3")
+            var jpg_tmp:File= File(this.getExternalFilesDir("SiteSurvey/tmp"), "tmp_photo.jpg")
+            Log.d("file", mp3_tmp.toString())
+            Log.d("file", jpg_tmp.toString())
 
             var mp3_def: File = File(this.getExternalFilesDir("SiteSurvey/"+currentDate), currentDate+".mp3")
             var jpg_def: File = File(this.getExternalFilesDir("SiteSurvey/"+currentDate), currentDate+".jpg")
 
+            Log.d("file", mp3_def.toString())
+            Log.d("file", jpg_def.toString())
+
             mp3_tmp.copyTo(mp3_def,false)
             jpg_tmp.copyTo(jpg_def,false)
-            stato.set_audio(false)
-            stato.set_foto(false)
+            audio = false
+            photo = false
+
         }
         else
         {
@@ -92,6 +113,14 @@ class MainActivity : AppCompatActivity(){
             posizione = 2
             true
         }
+        R.id.help -> {
+            val dialog = AlertDialog.Builder(this).setTitle("Help").setMessage("To record the audio, press and hold the button. After taking the photo and audio recording, press the + button to confirm.")
+                .setPositiveButton("Ok", { dialog, i -> })
+
+            dialog.show()
+            true
+        }
+
         else -> {
             // If we got here, the user's action was not recognized.
             // Invoke the superclass to handle it.

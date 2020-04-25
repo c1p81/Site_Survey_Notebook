@@ -12,4 +12,6 @@
 
     <string name="note">Note</string>
     <string name="list">Note List</string>
+    <string name="help">Help</string>
+
 </resources>

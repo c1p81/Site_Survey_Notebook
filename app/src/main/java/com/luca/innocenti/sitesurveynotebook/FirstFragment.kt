@@ -108,7 +108,7 @@ class FirstFragment : Fragment() {
             {
                 // crea sposta i dati dal tmeporaneo alla directory
                 Log.d("Directory","Sposta")
-                val sdf = SimpleDateFormat("dd_MM_yyyy_hh:mm:ss")
+                val sdf = SimpleDateFormat("dd_MM_yyyy_HH:mm:ss")
                 val currentDate = sdf.format(Date())
                 val folder_main = currentDate
 
@@ -128,8 +128,8 @@ class FirstFragment : Fragment() {
                 Log.d("file", mp3_def.toString())
                 Log.d("file", jpg_def.toString())
 
-                mp3_tmp.copyTo(mp3_def,false)
-                jpg_tmp.copyTo(jpg_def,false)
+                mp3_tmp.copyTo(mp3_def,true)
+                jpg_tmp.copyTo(jpg_def,true)
                 audio = false
                 photo = false
                 icona_camera?.visibility = View.INVISIBLE
@@ -185,12 +185,6 @@ class FirstFragment : Fragment() {
             val action = event.action
             when(action) {
                 MotionEvent.ACTION_DOWN -> {
-                    if (ContextCompat.checkSelfPermission(mContext,
-                            Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(mContext,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                        ActivityCompat.requestPermissions(mContext as Activity, permissions,0)
-                    } else {
                         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
                         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -200,12 +194,7 @@ class FirstFragment : Fragment() {
                         mediaPlayer.start()
                         audio = true
                         icona_audio?.visibility = android.view.View.VISIBLE
-
-
-                        Toast.makeText(mContext, "Recording started!", Toast.LENGTH_SHORT).show()
-                        }
-
-
+                       Toast.makeText(mContext, "Recording started!", Toast.LENGTH_SHORT).show()
                     Log.d("Evento","Premuto")
                 }
                 MotionEvent.ACTION_UP -> {
@@ -219,6 +208,8 @@ class FirstFragment : Fragment() {
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
+                    mediaPlayer.stop()
+                    mediaPlayer.release()
 
                     Log.d("Evento","Rilasciato")
                 }
