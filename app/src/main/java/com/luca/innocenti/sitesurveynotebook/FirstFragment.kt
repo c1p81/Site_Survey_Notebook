@@ -108,6 +108,7 @@ class FirstFragment : Fragment() {
             {
                 // crea sposta i dati dal tmeporaneo alla directory
                 Log.d("Directory","Sposta")
+
                 val sdf = SimpleDateFormat("dd_MM_yyyy_HH:mm:ss")
                 val currentDate = sdf.format(Date())
                 val folder_main = currentDate
@@ -136,6 +137,9 @@ class FirstFragment : Fragment() {
                 icona_audio?.visibility= View.INVISIBLE
                 mp3_tmp.delete()
                 jpg_tmp.delete()
+                //mediaPlayer.start()
+                Snackbar.make(view, "Saving....", Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show()
 
             }
             else

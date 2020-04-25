@@ -1,5 +1,7 @@
 package com.luca.innocenti.sitesurveynotebook
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -8,6 +10,7 @@ import android.util.Log
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -18,6 +21,17 @@ class Main2Activity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            Log.d("Permesso","NON NON ")
+        }
+        else
+        {
+            Log.d("Permesso","Accettato")
+        }
+
+
         val intent = intent
         var name = intent.getStringExtra("s")
         var name_1 = File(getExternalFilesDir("SiteSurvey/" + name), name + ".jpg").toString()
@@ -37,13 +51,17 @@ class Main2Activity : AppCompatActivity() {
             stringPath = android.net.Uri.parse("file://" + stringPath).getPath().toString();
 
             Log.d("mp3",stringPath)
+            val file = File(stringPath)
+            val inputStream = FileInputStream(file)
+
+
 
             try {
                 val MediaPlayer:MediaPlayer? = MediaPlayer().apply {
                     stop()
                     reset()
                     setAudioStreamType(AudioManager.STREAM_MUSIC)
-                    setDataSource(stringPath)
+                    setDataSource(inputStream.fd)
 
                     //setDataSource(applicationContext,stringPath)
                     //prepareAsync()
