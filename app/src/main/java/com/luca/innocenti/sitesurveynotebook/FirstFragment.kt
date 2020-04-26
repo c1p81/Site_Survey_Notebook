@@ -7,31 +7,28 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.camerakit.CameraKitView
 import com.camerakit.CameraKitView.ImageCallback
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.NonCancellable.start
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.audio
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.photo
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import com.luca.innocenti.sitesurveynotebook.variabili.Companion.audio
-import com.luca.innocenti.sitesurveynotebook.variabili.Companion.photo
 import java.text.SimpleDateFormat
 import java.util.*
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.posizione
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -66,18 +63,28 @@ class FirstFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         cameraKitView?.onResume()
+        posizione = 1
+    }
+
+    override fun onPause() {
+        cameraKitView?.onPause()
+        super.onPause()
+
     }
 
     override fun onStart ()
     {
         super.onStart()
         cameraKitView?.onStart()
+        posizione =1
     }
 
     override fun onStop() {
-        super.onStop()
         cameraKitView?.onStop()
+        super.onStop()
     }
+
+
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -189,6 +196,12 @@ class FirstFragment : Fragment() {
             val action = event.action
             when(action) {
                 MotionEvent.ACTION_DOWN -> {
+                    if (ContextCompat.checkSelfPermission(mContext,
+                            Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(mContext,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                        ActivityCompat.requestPermissions(mContext as Activity, permissions,0)
+                    } else {
                         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
                         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -198,8 +211,9 @@ class FirstFragment : Fragment() {
                         mediaPlayer.start()
                         audio = true
                         icona_audio?.visibility = android.view.View.VISIBLE
-                       Toast.makeText(mContext, "Recording started!", Toast.LENGTH_SHORT).show()
-                    Log.d("Evento","Premuto")
+                        Toast.makeText(mContext, "Recording started!", Toast.LENGTH_SHORT).show()
+                        Log.d("Evento", "Premuto")
+                    }
                 }
                 MotionEvent.ACTION_UP -> {
                     try{
@@ -212,8 +226,7 @@ class FirstFragment : Fragment() {
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
-                    mediaPlayer.stop()
-                    mediaPlayer.release()
+
 
                     Log.d("Evento","Rilasciato")
                 }

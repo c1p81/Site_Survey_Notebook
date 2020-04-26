@@ -1,31 +1,25 @@
 package com.luca.innocenti.sitesurveynotebook
 
-import android.Manifest
-import android.app.Activity
-import android.app.ProgressDialog.show
-import android.content.DialogInterface
-import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.snackbar.Snackbar
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.audio
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.photo
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import com.luca.innocenti.sitesurveynotebook.variabili.Companion.audio
-import com.luca.innocenti.sitesurveynotebook.variabili.Companion.photo
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.posizione
 
 
 class MainActivity : AppCompatActivity(){
@@ -37,6 +31,10 @@ class MainActivity : AppCompatActivity(){
         setSupportActionBar(toolbar)
         audio = false
         photo = false
+        posizione = 1
+
+        val builder = StrictMode.VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
 
 
         fab.setOnClickListener(object : View.OnClickListener {
@@ -102,6 +100,7 @@ class MainActivity : AppCompatActivity(){
     // actions on click menu items
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.note -> {
+
             if (posizione == 2) NavHostFragment.findNavController(nav_host_fragment).navigate(R.id.action_SecondFragment_to_FirstFragment)
             posizione = 1
             Log.d("Menu", "Note")

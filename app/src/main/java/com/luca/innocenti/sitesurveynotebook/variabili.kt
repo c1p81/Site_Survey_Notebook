@@ -6,6 +6,7 @@ class variabili : Application() {
     companion object {
         var audio = false
         var photo = false
+        var posizione = 1
     }
 
 }
