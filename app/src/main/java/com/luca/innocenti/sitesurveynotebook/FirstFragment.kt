@@ -23,12 +23,21 @@ import com.camerakit.CameraKitView.ImageCallback
 import com.google.android.material.snackbar.Snackbar
 import com.luca.innocenti.sitesurveynotebook.variabili.Companion.audio
 import com.luca.innocenti.sitesurveynotebook.variabili.Companion.photo
+import com.luca.innocenti.sitesurveynotebook.variabili.Companion.posizione
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import com.luca.innocenti.sitesurveynotebook.variabili.Companion.posizione
+
+
+// This is an arbitrary number we are using to keep track of the permission
+// request. Where an app has multiple context for requesting permission,
+// this can help differentiate the different contexts.
+private const val REQUEST_CODE_PERMISSIONS = 10
+
+// This is an array of all the permission specified in the manifest.
+private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -83,8 +92,6 @@ class FirstFragment : Fragment() {
         cameraKitView?.onStop()
         super.onStop()
     }
-
-
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -162,7 +169,6 @@ class FirstFragment : Fragment() {
 
         shutter.setOnClickListener{
             Log.d("shutter","shu")
-
             cameraKitView?.captureImage(ImageCallback { cameraKitView, capturedImage ->
                 val savedPhoto =File(mContext.getExternalFilesDir("SiteSurvey/tmp"), "tmp_photo.jpg")
                 Log.d("Photo",savedPhoto.toString())

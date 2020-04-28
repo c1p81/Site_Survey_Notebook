@@ -6,20 +6,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
-import android.os.StrictMode
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 import java.io.File
 import java.io.FileInputStream
 
@@ -135,38 +132,6 @@ class SecondFragment : Fragment() {
 
                                     startActivity(intent)
                                     }
-                .setNegativeButton("Share") { dialog, which ->
-                    Log.d("Share","Share")
-                    Log.d("Share","Share")
-                    val intent = Intent(Intent.ACTION_SEND)
-                    intent.type = "text/plain"
-                    var stringPath_mp3 =File(mContext.getExternalFilesDir("SiteSurvey/"+result.get(position).emp_name), result.get(position).emp_name+".mp3")
-                    var stringPath_jpg=File(mContext.getExternalFilesDir("SiteSurvey/"+result.get(position).emp_name), result.get(position).emp_name+".jpg")
-
-                    val uris = ArrayList<Uri>()
-                    //uris.add(Uri.parse("file://$stringPath_jpg"))
-                    //uris.add(Uri.parse("file://$stringPath_mp3"))
-
-                    uris.add(Uri.fromFile(stringPath_jpg))
-                    uris.add(Uri.fromFile(stringPath_mp3))
-
-                    Log.d("test",uris.toString())
-
-                    //var stringPath_jpg: File =File(mContext.getExternalFilesDir("SiteSurvey/"+result.get(position).emp_name), result.get(position).emp_name+".jpg")
-
-                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Site Survey ")
-                    //intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://$stringPath_jpg"))
-                    //intent.putExtra(Intent.EXTRA_STREAM, uris)
-                    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-
-                    intent.putExtra(Intent.EXTRA_TEXT, "Site Survey Notebook")
-                    intent.data = Uri.parse("mailto:")
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    this.startActivity(intent)
-
-                }
                 .setNeutralButton("Delete") { dialog, which ->
                     Log.d("Delete","Delete")
                     Log.d("Delete","Delete")
@@ -228,6 +193,26 @@ class SecondFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context);
         mContext=context;
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (view == null) {
+            return
+        }
+        view!!.isFocusableInTouchMode = true
+        view!!.requestFocus()
+        view!!.setOnKeyListener { v, keyCode, event ->
+            if (event.action === KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                // handle back button's click listener
+                //Log.d("Back","1")
+
+                Toast.makeText(mContext, "Use the menu to go back", Toast.LENGTH_SHORT).show()
+                true
+            } else false
+        }
 
     }
 
